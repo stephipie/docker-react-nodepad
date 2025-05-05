@@ -1,5 +1,9 @@
-node_modules
-.gitignore
+node_modules/
 .git
-Dockerfile
-dist
+.gitignore
+.vscode/
+.idea/
+*.log
+tmp/
+build/
+dist/
