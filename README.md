@@ -1,90 +1,66 @@
-# Mini-Notizblock Anwendung
+# Dockerized React Notepad with File Persistence
 
-Diese Anwendung ist ein einfacher Mini-Notizblock, mit dem Benutzer Notizen erstellen, anzeigen und löschen können. Sie besteht aus einem React-basierten Frontend und einem Node.js/Express-basierten Backend.
+Diese Anwendung ist ein einfacher Notizblock, der mit React im Frontend und Node.js/Express im Backend erstellt wurde. Die Besonderheit dieser Version ist die Implementierung der Datenpersistenz im Backend mithilfe von Dateien. Die Anwendung ist vollständig mit Docker containerisiert.
 
-## Struktur des Projekts
+## Beschreibung der Anwendung
 
-Das Projekt ist in folgende Verzeichnisse unterteilt:
+Das Frontend bietet eine einfache Benutzeroberfläche zum Erstellen und Anzeigen von Notizen. Das Backend speichert diese Notizen und stellt sie über eine REST-API bereit. In dieser Version werden die Notizen in einer JSON-Datei im Container gespeichert, um die Daten auch nach Neustarts des Backends zu erhalten.
 
-├── backend/
-│   ├── Dockerfile          # Dockerfile für die Backend-Anwendung
-│   ├── .dockerignore       # Dateien, die beim Bau des Backend-Images ignoriert werden
-│   ├── package.json        # Projektkonfiguration und Abhängigkeiten für das Backend
-│   ├── package-lock.json   # Genaue Abhängigkeitsversionen für das Backend
-│   ├── routes/
-│   │   └── notes.js        # Definition der API-Routen für Notizen
-│   └── server.js           # Hauptdatei für den Express-Server
-├── frontend/
-│   ├── Dockerfile          # Dockerfile für die Frontend-Anwendung
-│   ├── .dockerignore       # Dateien, die beim Bau des Frontend-Images ignoriert werden
-│   ├── public/             # Öffentliche Assets des Frontends
-│   ├── src/                # React-Quellcode
-│   │   ├── App.jsx           # Hauptkomponente der Anwendung
-│   │   ├── components/       # React-Komponenten
-│   │   │   ├── NoteInput.jsx # Eingabefeld für neue Notizen
-│   │   │   ├── NoteItem.jsx  # Anzeige einer einzelnen Notiz
-│   │   │   └── NoteList.jsx  # Liste der angezeigten Notizen
-│   │   └── ...
-│   ├── package.json        # Projektkonfiguration und Abhängigkeiten für das Frontend
-│   ├── package-lock.json   # Genaue Abhängigkeitsversionen für das Frontend
-│   ├── .env                # Umgebungsvariablen für die Entwicklung (Frontend)
-│   └── vite.config.js      # Vite-Konfiguration 
-└── README.md             # Diese Datei
+## Containerisierung
 
-* **`backend/`**: Enthält den Quellcode und die Docker-Konfiguration für die Backend-API.
-* **`frontend/`**: Enthält den Quellcode und die Docker-Konfiguration für die React-basierte Benutzeroberfläche.
-* **`README.md`**: Die vorliegende Datei mit einer Beschreibung des Projekts.
-
-## Containerisierte Anwendung bauen und starten (separat)
-
-Diese Anleitung beschreibt, wie du die Backend- und Frontend-Anwendungen als separate Docker-Container baust und startest.
+Die Anwendung ist in zwei Docker-Containern verpackt: einen für das Frontend (Nginx serving static React build) und einen für das Backend (Node.js/Express API).
 
 ### Voraussetzungen
 
-* Docker muss auf deinem System installiert sein. Du kannst es von [https://www.docker.com/get-started](https://www.docker.com/get-started) herunterladen und installieren.
+* Docker muss auf deinem System installiert sein.
 
-### Backend bauen und starten
+### Backend Image bauen
 
-1.  **Zum Backend-Verzeichnis navigieren:**
-    ```bash
-    cd backend
-    ```
+Navigiere zum Backend-Verzeichnis:
 
-2.  **Backend-Image bauen:**
-    ```bash
-    docker build -t my-backend-api .
-    ```
-    Dieser Befehl erstellt ein Docker-Image namens `my-backend-api` basierend auf dem `Dockerfile` im `backend`-Verzeichnis.
+```bash
+cd backend
+docker build -t my-backend-api:persistence .
+```
+### Backend Container starten mit Persistenz
+Um die Daten des Backends persistent zu speichern, wird ein Named Volume verwendet, das an das /app/data-Verzeichnis im Container gemountet wird.
 
-3.  **Backend-Container starten:**
-    ```bash
-    docker run -d -p 8081:3000 --name my-backend my-backend-api
-    ```
-    Dieser Befehl startet einen Container im Hintergrund (`-d`) aus dem `my-backend-api`-Image. Der interne Port 3000 des Containers (auf dem die Node.js-Anwendung läuft) wird auf Port 8081 deines Host-Rechners gemappt (`-p 8081:3000`). Der Container erhält den Namen `my-backend`.
+```bash
+docker volume create my-backend-data
+docker run -d -p 8081:3000 --name my-backend-persistent -v my-backend-data:/app/data my-backend-api:persistence
+```
+### Frontend Image bauen
 
-### Frontend bauen und starten
+Navigiere zum Frontend-Verzeichnis:
+```bash
+cd frontend
+docker build --build-arg VITE_API_URL=http://localhost:4000/api -t my-frontend-app:latest .
+```
+Frontend Container starten
+```bash
+docker run -d -p 8080:80 --name my-frontend my-frontend-app:latest
+```
+Die React-Anwendung ist nun unter http://localhost:8080 im Browser erreichbar.
 
-1.  **Zum Frontend-Verzeichnis navigieren:**
-    ```bash
-    cd frontend
-    ```
+### Entscheidung für den Volume-Typ
+Für die Persistenz der Backend-Daten wurde ein Named Volume (my-backend-data) gewählt.
 
-2.  **Frontend-Image bauen:**
-    ```bash
-    docker build --build-arg VITE_API_URL=http://localhost:8081/api -t my-frontend-app .
-    ```
-    Dieser Befehl erstellt ein Docker-Image namens `my-frontend-app`. Wichtig ist das `--build-arg VITE_API_URL=http://localhost:8081/api`. Hier wird die URL des laufenden Backend-Containers (erreichbar über `localhost:8081` von deinem Host) als Build-Argument an das Frontend übergeben. Das Frontend wird so gebaut, dass es Anfragen an diese URL sendet.
+#### Vorteile von Named Volumes:
 
-3.  **Frontend-Container starten:**
-    ```bash
-    docker run -d -p 8080:80 --name my-frontend my-frontend-app
-    ```
-    Dieser Befehl startet einen Container im Hintergrund aus dem `my-frontend-app`-Image. Der interne Port 80 des Containers (auf dem der Nginx-Webserver läuft) wird auf Port 8080 deines Host-Rechners gemappt (`-p 8080:80`). Der Container erhält den Namen `my-frontend`.
+Abstraktion des Host-Dateisystems: Docker verwaltet den Speicherort der Daten.
+Einfache Verwaltung: Docker bietet Befehle zur Verwaltung von Volumes.
+Bessere Portabilität: Unabhängiger vom spezifischen Host-System.
 
-### Anwendung im Browser aufrufen
+#### Nachteile von Named Volumes:
 
-Nachdem beide Container erfolgreich gestartet wurden, kannst du die Anwendung in deinem Webbrowser unter folgender Adresse aufrufen:
+Weniger direkte Kontrolle: Direkter Zugriff auf die Daten auf dem Host ist umständlicher.
 
-http://localhost:8080
+#### Vorteile von Bind Mounts:
 
-Die React-Anwendung sollte geladen werden und mit dem Backend kommunizieren, das unter `http://localhost:8081` erreichbar ist. Du kannst Notizen hinzufügen, anzeigen und löschen.
+Direkte Kontrolle: Einfacher Zugriff und Bearbeitung der Daten auf dem Host.
+
+#### Nachteile von Bind Mounts:
+
+Abhängigkeit vom Host-Dateisystem: Pfade müssen existieren und korrekt sein.
+Potenzielle Berechtigungsprobleme.
+Für diese Entwicklungsumgebung habe ich die einfachere Verwaltung und die bessere Portabilität von Named Volumes als wichtiger erachtet.
