@@ -35,8 +35,11 @@ RUN npm run build
 # --- STAGE 2 : SERVE Stage ---
 FROM nginx:alpine
 
-# OPTIONAL: Nginx Konfiguration für SPAs kopieren
-# COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+# Entferne die Standard Nginx Konfiguration
+RUN rm /etc/nginx/conf.d/default.conf
+
+# Kopiere die angepasste Nginx Konfiguration in den Container
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 # Kopiere die gebauten Dateien aus der Builder Stage
 COPY --from=builder /app/dist /usr/share/nginx/html

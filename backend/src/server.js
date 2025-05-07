@@ -16,10 +16,10 @@ app.use(cors({
 }));
 
 // Middleware zum Laden der Daten beim Start
-app.use(loadNotesMiddleware);
+app.use(loadNotes);
 
 // Middleware zum Speichern der Daten nach jeder Anfrage, die Daten modifiziert
-app.use(saveNotesMiddleware);
+app.use(saveNotes);
 
 // Routen für Notizen einbinden
 app.use('/api/notes', notesRoutes);

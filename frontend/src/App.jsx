@@ -11,6 +11,8 @@ function App() {
   }, []);
 
   const fetchNotes = async () => {
+    console.log('API URL:', apiUrl);
+console.log('Fetch URL (Laden):', `${apiUrl}/notes`);
     try {
       const response = await fetch(`${apiUrl}/notes`);
       if (!response.ok) {
