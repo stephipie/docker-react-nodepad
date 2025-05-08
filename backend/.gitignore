@@ -21,9 +21,5 @@ tmp
 temp
 .tmp
 
-package-lock.json
 
-Dockerfile
-docker-compose.yml
-Dockerfile.build*
-docker-compose*.yml
+
