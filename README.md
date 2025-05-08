@@ -1,66 +1,94 @@
-# Dockerized React Notepad with File Persistence
+# Full-Stack Anwendung mit React, Node.js, Persistenz und Reverse Proxy (Docker)
 
-Diese Anwendung ist ein einfacher Notizblock, der mit React im Frontend und Node.js/Express im Backend erstellt wurde. Die Besonderheit dieser Version ist die Implementierung der Datenpersistenz im Backend mithilfe von Dateien. Die Anwendung ist vollständig mit Docker containerisiert.
+Dieses Repository enthält eine containerisierte Full-Stack-Anwendung, bestehend aus einem React-Frontend und einem Node.js/Express API-Backend mit Dateipersistenz. Die Kommunikation zwischen Frontend und Backend erfolgt über ein dediziertes Docker-Netzwerk und ein Nginx Reverse Proxy.
 
-## Beschreibung der Anwendung
+## Projektstruktur
 
-Das Frontend bietet eine einfache Benutzeroberfläche zum Erstellen und Anzeigen von Notizen. Das Backend speichert diese Notizen und stellt sie über eine REST-API bereit. In dieser Version werden die Notizen in einer JSON-Datei im Container gespeichert, um die Daten auch nach Neustarts des Backends zu erhalten.
+Das Projekt ist in folgende Hauptverzeichnisse unterteilt:
 
-## Containerisierung
+* `frontend/`: Enthält den Quellcode für die React-Anwendung sowie die Dockerfile und die Nginx-Konfigurationsdatei.
+* `backend/`: Enthält den Quellcode für die Node.js/Express API und das Dockerfile für das Backend.
 
-Die Anwendung ist in zwei Docker-Containern verpackt: einen für das Frontend (Nginx serving static React build) und einen für das Backend (Node.js/Express API).
+Im Wurzelverzeichnis befinden sich diese `README.md`-Datei, `.gitignore` und `.dockerignore`.
 
-### Voraussetzungen
+## Backend-Persistenz
 
-* Docker muss auf deinem System installiert sein.
+Das Node.js/Express Backend verwendet eine einfache Dateipersistenz, um Daten zu speichern. Die API speichert alle Notizen in einer JSON-Datei (`notes.json`) innerhalb des Container-Dateisystems unter `/app/data/`. Um diese Daten auch nach dem Stoppen und Neustarten des Backend-Containers zu erhalten, wird ein Docker Volume (`my-backend-data`) an diesen Pfad im Container gemountet. Dadurch bleiben die Daten auf dem Host-System gespeichert und sind auch nach einem Neustart des Containers wieder verfügbar.
 
-### Backend Image bauen
+## Nginx Reverse Proxy Konfiguration
 
-Navigiere zum Backend-Verzeichnis:
+Das Frontend wird über einen Nginx Webserver ausgeliefert, der gleichzeitig als Reverse Proxy für die API-Anfragen dient. Die Nginx-Konfiguration befindet sich im `frontend/` Verzeichnis in der Datei `nginx.conf` (oder `default.conf`).
 
-```bash
+Die Konfiguration sieht wie folgt aus:
+
+```nginx
+server {
+    listen 80;
+    server_name _; # oder Domain falls vorhanden
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://backend-service:3000/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+Der location / Block dient dazu, die statischen Dateien des gebauten React-Frontends auszuliefern.
+Der location /api/ Block konfiguriert Nginx als Reverse Proxy für alle Anfragen, die mit /api/ beginnen. Die proxy_pass Direktive leitet diese Anfragen an http://backend-service:3000/api/ weiter. backend-service ist der interne Hostname des Backend-Containers im Docker-Netzwerk, der von Docker DNS automatisch in die entsprechende IP-Adresse aufgelöst wird. Die proxy_set_header-Direktiven stellen sicher, dass wichtige Informationen über die ursprüngliche Anfrage an das Backend weitergeleitet werden.
+Dadurch sendet das Frontend API-Aufrufe an /api/... auf dem eigenen Server (Port 80 des Frontend-Containers), und Nginx leitet diese Anfragen transparent an das Backend weiter, das auf Port 3000 innerhalb des Docker-Netzwerks lauscht.
+
+Docker Netzwerk erstellen und Container starten
+Folge diesen Schritten, um das Docker-Netzwerk zu erstellen und die Container mit dem Reverse Proxy Muster zu starten:
+
+Docker Netzwerk erstellen (falls noch nicht vorhanden):
+
+Bash
+```
+docker network create my-app-network
+```
+Backend Image bauen:
+
+Bash
+````
 cd backend
-docker build -t my-backend-api:persistence .
+docker build -t my-backend-api:network-proxy .
+cd ..
 ```
-### Backend Container starten mit Persistenz
-Um die Daten des Backends persistent zu speichern, wird ein Named Volume verwendet, das an das /app/data-Verzeichnis im Container gemountet wird.
+Backend Container starten:
 
-```bash
-docker volume create my-backend-data
-docker run -d -p 8081:3000 --name my-backend-persistent -v my-backend-data:/app/data my-backend-api:persistence
+Bash
 ```
-### Frontend Image bauen
+docker run -d --name backend-service --network my-app-network -p 8081:3000 -v my-backend-data:/app/data my-backend-api:network-proxy
+```
+--name backend-service: Gibt dem Backend-Container den Namen backend-service, der in der Nginx-Konfiguration verwendet wird.
+--network my-app-network: Verbindet den Container mit dem erstellten Docker-Netzwerk.
+-p 8081:3000: Mappt den Host-Port 8081 auf den Container-Port 3000 (optional für Debugging).
+-v my-backend-data:/app/data: Mountet das Volume für die Persistenz.
+Frontend Image bauen:
 
-Navigiere zum Frontend-Verzeichnis:
-```bash
+Bash
+```
 cd frontend
-docker build --build-arg VITE_API_URL=http://localhost:4000/api -t my-frontend-app:latest .
+docker build --build-arg VITE_API_URL='/api' -t my-frontend-app:network-proxy .
+cd ..
 ```
-Frontend Container starten
-```bash
-docker run -d -p 8080:80 --name my-frontend my-frontend-app:latest
+--build-arg VITE_API_URL=/api: Setzt die VITE_API_URL Build-Variable im Frontend auf /api, den Pfad, unter dem Nginx die API-Anfragen entgegennimmt.
+
+Frontend Container starten:
+
+Bash
+``
+docker run -d --name frontend-app --network my-app-network -p 8080:80 my-frontend-app:network-proxy`
 ```
-Die React-Anwendung ist nun unter http://localhost:8080 im Browser erreichbar.
 
-### Entscheidung für den Volume-Typ
-Für die Persistenz der Backend-Daten wurde ein Named Volume (my-backend-data) gewählt.
-
-#### Vorteile von Named Volumes:
-
-Abstraktion des Host-Dateisystems: Docker verwaltet den Speicherort der Daten.
-Einfache Verwaltung: Docker bietet Befehle zur Verwaltung von Volumes.
-Bessere Portabilität: Unabhängiger vom spezifischen Host-System.
-
-#### Nachteile von Named Volumes:
-
-Weniger direkte Kontrolle: Direkter Zugriff auf die Daten auf dem Host ist umständlicher.
-
-#### Vorteile von Bind Mounts:
-
-Direkte Kontrolle: Einfacher Zugriff und Bearbeitung der Daten auf dem Host.
-
-#### Nachteile von Bind Mounts:
-
-Abhängigkeit vom Host-Dateisystem: Pfade müssen existieren und korrekt sein.
-Potenzielle Berechtigungsprobleme.
-Für diese Entwicklungsumgebung habe ich die einfachere Verwaltung und die bessere Portabilität von Named Volumes als wichtiger erachtet.
+--name frontend-app: Gibt dem Frontend-Container den Namen frontend-app.
+--network my-app-network: Verbindet den Container mit demselben Docker-Netzwerk wie das Backend.
+-p 8080:80: Mappt den Host-Port 8080 auf den Container-Port 80 (Nginx).
+Nachdem diese Schritte ausgeführt wurden, ist die Anwendung unter http://localhost:8080 im Browser erreichbar. API-Aufrufe vom Frontend an /api/... werden von Nginx an das Backend weitergeleitet. Die Daten des Backends bleiben dank des Docker Volumes auch bei Neustarts des Backend-Containers erhalten.
