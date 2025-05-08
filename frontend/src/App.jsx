@@ -12,9 +12,9 @@ function App() {
 
   const fetchNotes = async () => {
     console.log('API URL:', apiUrl);
-console.log('Fetch URL (Laden):', `${apiUrl}/notes`);
+console.log('Fetch URL (Laden):', `/${apiUrl}/notes`);
     try {
-      const response = await fetch(`${apiUrl}/notes`);
+      const response = await fetch(`/${apiUrl}/notes`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -27,7 +27,7 @@ console.log('Fetch URL (Laden):', `${apiUrl}/notes`);
 
   const addNote = async (newNoteText) => {
     try {
-      const response = await fetch(`${apiUrl}/notes`, {
+      const response = await fetch(`/${apiUrl}/notes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ console.log('Fetch URL (Laden):', `${apiUrl}/notes`);
 
   const deleteNote = async (id) => {
     try {
-      const response = await fetch(`${apiUrl}/notes/${id}`, {
+      const response = await fetch(`/${apiUrl}/notes/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
