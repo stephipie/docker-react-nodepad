@@ -93,4 +93,4 @@ docker run -d --name frontend-app --network my-app-network -p 8080:80 my-fronten
 --name frontend-app: Gibt dem Frontend-Container den Namen frontend-app.
 --network my-app-network: Verbindet den Container mit demselben Docker-Netzwerk wie das Backend.
 -p 8080:80: Mappt den Host-Port 8080 auf den Container-Port 80 (Nginx).
-Nachdem diese Schritte ausgeführt wurden, ist die Anwendung unter http://localhost:8080 im Browser erreichbar. API-Aufrufe vom Frontend an /api/... werden von Nginx an das Backend weitergeleitet. Die Daten des Backends bleiben dank des Docker Volumes auch bei Neustarts des Backend-Containers erhalten.
+Nachdem diese Schritte ausgeführt wurden, ist die Anwendung unter ``` http://localhost:8080 ```im Browser erreichbar. API-Aufrufe vom Frontend an /api/... werden von Nginx an das Backend weitergeleitet. Die Daten des Backends bleiben dank des Docker Volumes auch bei Neustarts des Backend-Containers erhalten.
