@@ -40,6 +40,8 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
+```
+
 Der location / Block dient dazu, die statischen Dateien des gebauten React-Frontends auszuliefern.
 Der location /api/ Block konfiguriert Nginx als Reverse Proxy für alle Anfragen, die mit /api/ beginnen. Die proxy_pass Direktive leitet diese Anfragen an http://backend-service:3000/api/ weiter. backend-service ist der interne Hostname des Backend-Containers im Docker-Netzwerk, der von Docker DNS automatisch in die entsprechende IP-Adresse aufgelöst wird. Die proxy_set_header-Direktiven stellen sicher, dass wichtige Informationen über die ursprüngliche Anfrage an das Backend weitergeleitet werden.
 Dadurch sendet das Frontend API-Aufrufe an /api/... auf dem eigenen Server (Port 80 des Frontend-Containers), und Nginx leitet diese Anfragen transparent an das Backend weiter, das auf Port 3000 innerhalb des Docker-Netzwerks lauscht.
@@ -49,22 +51,22 @@ Folge diesen Schritten, um das Docker-Netzwerk zu erstellen und die Container mi
 
 Docker Netzwerk erstellen (falls noch nicht vorhanden):
 
-Bash
-```
+```Bash
+
 docker network create my-app-network
 ```
 Backend Image bauen:
 
-Bash
-````
+```Bash
+
 cd backend
 docker build -t my-backend-api:network-proxy .
 cd ..
 ```
 Backend Container starten:
 
-Bash
-```
+```Bash
+
 docker run -d --name backend-service --network my-app-network -p 8081:3000 -v my-backend-data:/app/data my-backend-api:network-proxy
 ```
 --name backend-service: Gibt dem Backend-Container den Namen backend-service, der in der Nginx-Konfiguration verwendet wird.
@@ -73,8 +75,8 @@ docker run -d --name backend-service --network my-app-network -p 8081:3000 -v my
 -v my-backend-data:/app/data: Mountet das Volume für die Persistenz.
 Frontend Image bauen:
 
-Bash
-```
+```Bash
+
 cd frontend
 docker build --build-arg VITE_API_URL='/api' -t my-frontend-app:network-proxy .
 cd ..
@@ -83,8 +85,8 @@ cd ..
 
 Frontend Container starten:
 
-Bash
-``
+```Bash
+
 docker run -d --name frontend-app --network my-app-network -p 8080:80 my-frontend-app:network-proxy`
 ```
 
