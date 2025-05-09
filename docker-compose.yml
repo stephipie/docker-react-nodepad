@@ -17,7 +17,7 @@ services:
     depends_on:
       - database
     environment:
-      DB_Host: database
+      DB_Host: DATABASE
       DB_Port: "5432"
       DB_User: ${POSTGRES_USER}
       DB_Name: ${POSTGRES_DB} 
