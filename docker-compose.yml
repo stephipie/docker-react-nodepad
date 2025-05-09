@@ -1,0 +1,41 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: "/api"
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+      - database
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      - database
+    environment:
+      DB_Host: database
+      DB_Port: "5432"
+      DB_User: ${POSTGRES_USER}
+      DB_Name: ${POSTGRES_DB} 
+      DB_Password: ${POSTGRES_PASSWORD}
+      PORT: 3000
+    volumes:
+      - backend_data:/app/data        
+  database:
+    image: postgres:17-alpine
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"  
+volumes:
+  db_data:
+  backend_data:
+            

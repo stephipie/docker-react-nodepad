@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const cors = require('cors'); //CORS Middleware importieren
 const loadNotes = require('./middleware/loadNotes'); // Middleware zum Laden der Notizen
 const saveNotes = require('./middleware/saveNotes'); // Middleware zum Speichern der Notizen
+const logger = require('./config/logger'); // Logger importieren
 
 dotenv.config(); // Lädt Umgebungsvariablen aus der .env-Datei
 
@@ -30,5 +31,14 @@ app.use((req, res, next) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server läuft auf http://localhost:${port}`);
+  logger.info('Starting backend API...'); // Verwende den Logger
+  logger.info('Database Configuration (received via ENV):', {
+    DB_HOST: process.env.DB_HOST,
+    DB_PORT: process.env.DB_PORT,
+    DB_USER: process.env.DB_USER,
+    DB_NAME: process.env.DB_NAME,
+    DB_PASSWORD: process.env.DB_PASSWORD ? '[REDACTED]' : 'N/A'
+  });
+  logger.info('-------------------------------------------');
+  logger.info(`Server läuft auf http://localhost:${port}`); // Verwende den Logger
 });

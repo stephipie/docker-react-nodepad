@@ -23,9 +23,6 @@ RUN npm ci
 # Build-Argument für die API-URL definieren
 ARG VITE_API_URL
 
-# Umgebungsvariable im Build-Prozess setzen
-ENV VITE_API_URL=$VITE_API_URL
-
 # Kopiere den restlichen Code in den Container
 COPY . .
 

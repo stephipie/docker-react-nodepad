@@ -98,3 +98,34 @@ Nachdem diese Schritte ausgeführt wurden, ist die Anwendung unter ``` http://lo
 ## SQL Recap: Datenmodell und grundlegende Abfragen
 
 Im Backend-Verzeichnis dieses Projekts wurde ein theoretisches relationales Datenmodell für die "Notes"-Datenstruktur entworfen und grundlegende SQL-Abfragen (CRUD) dafür formuliert. Die Details zum Datenmodell und den Abfragen finden Sie in der Datei `sql-recap.md` im Backend-Verzeichnis.
+
+## EINBINDEN VON DOCKER COMPOSE
+
+Erstelle im Wurzelverzeichnis eine docker-compose.yml
+
+```Bash
+touch docker-compose.yml #Code kannst Du der docker-compose.yml entnehmen
+```
+1. **Umgebungsvariablen konfigurieren**
+
+    * Erstelle eine `.env`-Datei im Wurzelverzeichnis des Projekts.
+    * Füge die folgenden Umgebungsvariablen hinzu und passe sie nach Bedarf an:
+
+        ```
+        POSTGRES_USER=dein_benutzername_bsp
+        POSTGRES_PASSWORD=dein_passwort_bsp
+        POSTGRES_DB=notizbuch_bsp
+        ```
+
+2.  **Anwendung mit Docker Compose starten**
+
+    ```bash
+    docker compose up --build -d
+    ```
+
+    Dieser Befehl baut die Docker-Images für den Frontend-, Backend- und Datenbank-Service und startet die Container im Hintergrund.
+
+3.  **Anwendung aufrufen**
+
+    Öffne deinen Webbrowser und gehe zu `http://localhost:8080`, um die Anwendung aufzurufen
+

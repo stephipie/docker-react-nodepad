@@ -8,7 +8,7 @@
     COPY package*.json ./
     
     # Abhängigkeiten installieren
-    RUN npm ci
+    RUN npm ci --production
     
     # Restlichen Anwendungscode ins Arbeitsverzeichnis kopieren
     COPY . .
