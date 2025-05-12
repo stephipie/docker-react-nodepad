@@ -2,6 +2,7 @@
 import express from 'express'; // Express importieren
 // const notesRoutes = require('./routes/notes');
 import notesRoutes from './routes/notes.js'; // Routen für Notizen importieren
+import healthRoutes from './routes/health.js'; // Routen für Health-Check importieren
 // const dotenv = require('dotenv');
 import dotenv from 'dotenv'; // Umgebungsvariablen importieren
 // const cors = require('cors'); //CORS Middleware importieren
@@ -12,7 +13,7 @@ import cors from 'cors'; // CORS Middleware importieren
 // import saveNotes from './middleware/saveNotes.js'; // Middleware zum Speichern der Notizen
 // const logger = require('./config/logger'); // Logger importieren
 import logger from './config/logger.js'; // Logger importieren
-import { Pool } from 'pg'; // Pool für PostgreSQL importieren
+import { testDbConnection } from './db.js';
 
 
 dotenv.config(); // Lädt Umgebungsvariablen aus der .env-Datei
@@ -22,7 +23,7 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json()); // Middleware zum Parsen von JSON-Anfragen
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://localhost:5173' ]// Nur Anfragen von diesen Origins erlauben
+  origin: ['http://localhost:8080', 'http://localhost:5173']// Nur Anfragen von diesen Origins erlauben
 }));
 
 // Middleware zum Laden der Daten beim Start
@@ -33,13 +34,14 @@ app.use(cors({
 
 // Routen für Notizen einbinden
 app.use('/api/notes', notesRoutes);
+app.use('/api/health', healthRoutes);
 
 // Grundlegende Fehlerbehandlung für nicht gefundene Routen (404)
 app.use((req, res, next) => {
   res.status(404).json({ error: 'Nicht gefunden' });
 });
 
-app.listen(port, () => {
+app.listen(port, async () => {
   logger.info('Starting backend API...'); // Verwende den Logger
   logger.info('Database Configuration (received via ENV):', {
     DB_HOST: process.env.DB_HOST,
@@ -49,5 +51,12 @@ app.listen(port, () => {
     DB_PASSWORD: process.env.DB_PASSWORD ? '[REDACTED]' : 'N/A'
   });
   logger.info('-------------------------------------------');
+  try {
+    await testDbConnection();
+    logger.info('Initial DB connection successful.');
+  } catch (err) {
+    logger.error('Initial DB connection failed. Exiting...');
+    process.exit(1);
+  }
   logger.info(`Server läuft auf http://localhost:${port}`); // Verwende den Logger
 });
