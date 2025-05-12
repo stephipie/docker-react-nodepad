@@ -3,7 +3,14 @@
 // const logger = require('../config/logger'); 
 import logger from '../config/logger.js'; // Logger importieren
 import express from 'express'; // Express importieren
-import router from express.Router(); // Router importieren
+const router = express.Router(); // Router für die API erstellen
+import {
+  findAllItems,
+  findItemById,
+  createItem,
+  updateItem,
+  deleteItem
+ } from '../services/notes.Service.js'; // Importiere die Service-Funktionen
 
 // Einfache In-Memory-Datenspeicherung für Notizen
 // let notes = [];
@@ -12,7 +19,9 @@ import router from express.Router(); // Router importieren
 // GET /api/notes (Alle Notizen abrufen)
 router.get('/', (req, res) => {
   logger.info('GET /api/notes - Notizen aufgerufen'); // Logge den Aufruf
-  res.json(req.notesData); // Alle Notizen zurückgeben
+  const data = findAllItems();
+  logger.info('GET /api/notes - Notizen abgerufen', { data }); // Logge die abgerufenen Daten
+  res.json({ok}); // Alle Notizen zurückgeben
 });
 
 // GET /api/notes/:id (Eine einzelne Notiz anhand der ID abrufen)

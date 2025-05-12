@@ -7,11 +7,13 @@ import dotenv from 'dotenv'; // Umgebungsvariablen importieren
 // const cors = require('cors'); //CORS Middleware importieren
 import cors from 'cors'; // CORS Middleware importieren
 // const loadNotes = require('./middleware/loadNotes'); // Middleware zum Laden der Notizen
-import loadNotes from './middleware/loadNotes.js'; // Middleware zum Laden der Notizen
+// import loadNotes from './middleware/loadNotes.js'; // Middleware zum Laden der Notizen
 // const saveNotes = require('./middleware/saveNotes'); // Middleware zum Speichern der Notizen
-import saveNotes from './middleware/saveNotes.js'; // Middleware zum Speichern der Notizen
+// import saveNotes from './middleware/saveNotes.js'; // Middleware zum Speichern der Notizen
 // const logger = require('./config/logger'); // Logger importieren
 import logger from './config/logger.js'; // Logger importieren
+import { Pool } from 'pg'; // Pool für PostgreSQL importieren
+
 
 dotenv.config(); // Lädt Umgebungsvariablen aus der .env-Datei
 
@@ -24,10 +26,10 @@ app.use(cors({
 }));
 
 // Middleware zum Laden der Daten beim Start
-app.use(loadNotes);
+// app.use(loadNotes);
 
 // Middleware zum Speichern der Daten nach jeder Anfrage, die Daten modifiziert
-app.use(saveNotes);
+// app.use(saveNotes);
 
 // Routen für Notizen einbinden
 app.use('/api/notes', notesRoutes);
