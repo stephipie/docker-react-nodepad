@@ -17,11 +17,10 @@ services:
     depends_on:
       - database
     environment:
-      DB_Host: DATABASE
-      DB_Port: "5432"
-      DB_User: ${POSTGRES_USER}
-      DB_Name: ${POSTGRES_DB} 
-      DB_Password: ${POSTGRES_PASSWORD}
+      DB_HOST: "5432"
+      DB_USER: ${POSTGRES_USER}
+      DB_NAME: ${POSTGRES_DB} 
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
       PORT: 3000
     volumes:
       - backend_data:/app/data        
