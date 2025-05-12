@@ -1,7 +1,11 @@
 // src/middleware/loadNotes.js
-const fs = require('fs').promises;
-const path = require('path');
-const logger = require('../config/logger'); 
+// const fs = require('fs').promises;
+// const path = require('path');
+// const logger = require('../config/logger'); 
+
+import fs from 'fs/promises'; // fs importieren
+import path from 'path'; // path importieren
+import logger from '../config/logger.js'; // Logger importieren
 
 const dataDir = path.join(__dirname, '..', 'data'); // Einmal nach oben, dann in 'data'
 const dataFile = path.join(dataDir, 'notes.json');
@@ -24,4 +28,5 @@ const loadNotes = async (req, res, next) => {
     }
   };
 
-module.exports = loadNotes;
+// module.exports = loadNotes;
+export default loadNotes;

@@ -1,4 +1,5 @@
-const winston = require('winston');
+// const winston = require('winston');
+import winston from 'winston'; // Winston importieren
 
 // Konfiguriere deinen Logger
 const logger = winston.createLogger({
@@ -10,4 +11,5 @@ const logger = winston.createLogger({
   transports: [new winston.transports.Console()],
 });
 
-module.exports = logger;
+// module.exports = logger;
+export default logger; // Exportiere den Logger

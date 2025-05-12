@@ -1,10 +1,17 @@
-const express = require('express');
-const notesRoutes = require('./routes/notes');
-const dotenv = require('dotenv');
-const cors = require('cors'); //CORS Middleware importieren
-const loadNotes = require('./middleware/loadNotes'); // Middleware zum Laden der Notizen
-const saveNotes = require('./middleware/saveNotes'); // Middleware zum Speichern der Notizen
-const logger = require('./config/logger'); // Logger importieren
+// const express = require('express');
+import express from 'express'; // Express importieren
+// const notesRoutes = require('./routes/notes');
+import notesRoutes from './routes/notes.js'; // Routen für Notizen importieren
+// const dotenv = require('dotenv');
+import dotenv from 'dotenv'; // Umgebungsvariablen importieren
+// const cors = require('cors'); //CORS Middleware importieren
+import cors from 'cors'; // CORS Middleware importieren
+// const loadNotes = require('./middleware/loadNotes'); // Middleware zum Laden der Notizen
+import loadNotes from './middleware/loadNotes.js'; // Middleware zum Laden der Notizen
+// const saveNotes = require('./middleware/saveNotes'); // Middleware zum Speichern der Notizen
+import saveNotes from './middleware/saveNotes.js'; // Middleware zum Speichern der Notizen
+// const logger = require('./config/logger'); // Logger importieren
+import logger from './config/logger.js'; // Logger importieren
 
 dotenv.config(); // Lädt Umgebungsvariablen aus der .env-Datei
 

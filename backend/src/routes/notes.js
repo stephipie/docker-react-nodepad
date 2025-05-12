@@ -1,6 +1,9 @@
-const express = require('express');
-const router = express.Router();
-const logger = require('../config/logger'); 
+// const express = require('express');
+// const router = express.Router();
+// const logger = require('../config/logger'); 
+import logger from '../config/logger.js'; // Logger importieren
+import express from 'express'; // Express importieren
+import router from express.Router(); // Router importieren
 
 // Einfache In-Memory-Datenspeicherung für Notizen
 // let notes = [];
@@ -56,4 +59,5 @@ router.delete('/:id', (req, res) => {
   }
 });
 
-module.exports = router;
+// module.exports = router;
+export default router;
