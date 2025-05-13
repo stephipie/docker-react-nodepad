@@ -10,7 +10,7 @@ import {
   createItem,
   updateItem,
   deleteItem
-} from '../services/notes.service.js'; // Importiere die Service-Funktionen
+} from '../services/notes.Service.js'; // Importiere die Service-Funktionen
 
 // Einfache In-Memory-Datenspeicherung für Notizen
 // let notes = [];
