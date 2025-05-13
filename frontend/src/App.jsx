@@ -11,8 +11,6 @@ function App() {
   }, []);
 
   const fetchNotes = async () => {
-    console.log('API URL:', apiUrl);
-console.log('Fetch URL (Laden):', `${apiUrl}/notes`);
     try {
       const response = await fetch(`${apiUrl}/notes`);
       if (!response.ok) {
@@ -25,14 +23,12 @@ console.log('Fetch URL (Laden):', `${apiUrl}/notes`);
     }
   };
 
-  const addNote = async (newNoteText) => {
+  const addNote = async (newNote) => {
     try {
       const response = await fetch(`${apiUrl}/notes`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ title: newNoteText, content: newNoteText }), // Backend erwartet title und content
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...newNote, is_completed: false }),
       });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -46,9 +42,7 @@ console.log('Fetch URL (Laden):', `${apiUrl}/notes`);
 
   const deleteNote = async (id) => {
     try {
-      const response = await fetch(`${apiUrl}/notes/${id}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(`${apiUrl}/notes/${id}`, { method: 'DELETE' });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -57,6 +51,27 @@ console.log('Fetch URL (Laden):', `${apiUrl}/notes`);
       console.error(`Fehler beim Löschen der Notiz mit ID ${id}:`, error);
     }
   };
+
+  // In App.jsx
+const toggleComplete = async (id, isCompleted) => {
+  try {
+    const response = await fetch(`<span class="math-inline">\{apiUrl\}/notes/</span>{id}`, {
+      method: 'PUT', // Oder 'PATCH'
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_completed: !isCompleted }), // Toggle den aktuellen Status
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const updatedNote = await response.json();
+    // Aktualisiere den lokalen State, um die Änderung widerzuspiegeln
+    setNotes(notes.map(note =>
+      note.id === id ? { ...note, is_completed: updatedNote.is_completed } : note
+    ));
+  } catch (error) {
+    console.error(`Fehler beim Aktualisieren des Status der Notiz mit ID ${id}:`, error);
+  }
+};
 
   return (
     <div>

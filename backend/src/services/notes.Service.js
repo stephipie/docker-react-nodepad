@@ -30,6 +30,11 @@ async function deleteItem(id) {
     return res.rows[0]; // Gibt das gelöschte Item-Objekt zurück
 }
 
+// async function updateItem(id, item) {
+//     const res = await query('UPDATE notes SET title = $1, content = $2, is_completed = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4 RETURNING id, title, content, is_completed;', [item.title, item.content, item.is_completed, id]);
+//     return res.rows[0];
+//   }
+
 export {
     findAllItems,
     findItemById,

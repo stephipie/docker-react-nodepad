@@ -1,70 +1,103 @@
-// const express = require('express');
-// const router = express.Router();
-// const logger = require('../config/logger'); 
-import logger from '../config/logger.js'; // Logger importieren
-import express from 'express'; // Express importieren
-const router = express.Router(); // Router für die API erstellen
-import {
-  findAllItems,
-  findItemById,
-  createItem,
-  updateItem,
-  deleteItem
-} from '../services/notes.Service.js'; // Importiere die Service-Funktionen
+import express from 'express';
+import logger from '../config/logger.js';
+import { 
+  findAllItems, 
+  findItemById, 
+  createItem, 
+  deleteItem,
+  updateItem 
+} from '../services/notes.Service.js';
 
-// Einfache In-Memory-Datenspeicherung für Notizen
-// let notes = [];
-// let nextId = 1;
+const router = express.Router();
 
 // GET /api/notes (Alle Notizen abrufen)
 router.get('/', async (req, res) => {
-  logger.info('GET /api/notes - Notizen aufgerufen'); // Logge den Aufruf
-  const data = await findAllItems();
-  logger.info('GET /api/notes - Notizen abgerufen', { data }); // Logge die abgerufenen Daten
-  res.json(data); // Alle Notizen zurückgeben
-});
-
-// GET /api/notes/:id (Eine einzelne Notiz anhand der ID abrufen)
-router.get('/:id', (req, res) => {
-  const noteId = parseInt(req.params.id);
-  const note = findItemById(noteId);
-
-  if (note) {
-    logger.info(`GET /api/notes/${noteId} - Notiz gefunden`); // Logge den Aufruf
-    res.json(note);
-  } else {
-    logger.warn(`GET /api/notes/${noteId} - Notiz nicht gefunden`); // Logge den Fehler
-    res.status(404).json({ error: 'Notiz nicht gefunden' });
+  try {
+    const data = await findAllItems();
+    logger.info('GET /api/notes - Notizen abgerufen', { data });
+    res.json(data);
+  } catch (error) {
+    logger.error('GET /api/notes - Fehler beim Abrufen der Notizen', error);
+    res.status(500).json({ error: 'Interner Serverfehler' });
   }
 });
 
-// POST /api/notes (Eine neue Notiz hinzufügen)
-router.post('/', (req, res) => {
+// GET /api/notes/:id (Eine einzelne Notiz abrufen)
+router.get('/:id', async (req, res) => {
+  const noteId = parseInt(req.params.id);
+  try {
+    const note = await findItemById(noteId);
+    if (note) {
+      logger.info(`GET /api/notes/${noteId} - Notiz gefunden`);
+      res.json(note);
+    } else {
+      logger.warn(`GET /api/notes/${noteId} - Notiz nicht gefunden`);
+      res.status(404).json({ error: 'Notiz nicht gefunden' });
+    }
+  } catch (error) {
+    logger.error(`GET /api/notes/${noteId} - Fehler:`, error);
+    res.status(500).json({ error: 'Interner Serverfehler' });
+  }
+});
+
+// POST /api/notes (Eine neue Notiz erstellen)
+router.post('/', async (req, res) => {
   const { title, content } = req.body;
   if (title && content) {
-    const newNote = createItem({ title, content, is_completed: false });
-    logger.info(`POST /api/notes - Neue Notiz hinzugefügt: ${JSON.stringify(newNote)}`); // Logge den Aufruf
-    res.status(201).json(newNote);
+    try {
+      const newNote = await createItem({ title, content, is_completed: false });
+      logger.info(`POST /api/notes - Neue Notiz hinzugefügt: ${JSON.stringify(newNote)}`);
+      res.status(201).json(newNote);
+    } catch (error) {
+      logger.error('POST /api/notes - Fehler beim Erstellen der Notiz', error);
+      res.status(500).json({ error: 'Interner Serverfehler' });
+    }
   } else {
-    logger.error('POST /api/notes - Ungültige Daten'); // Logge den Fehler
+    logger.error('POST /api/notes - Ungültige Daten');
     res.status(400).json({ error: 'Titel und Inhalt sind erforderlich' });
   }
 });
 
-// DELETE /api/notes/:id (Eine Notiz anhand der ID löschen)
-router.delete('/:id', (req, res) => {
+// DELETE /api/notes/:id (Eine Notiz löschen)
+router.delete('/:id', async (req, res) => {
   const noteId = parseInt(req.params.id);
-  const initialLength = req.notesData.length;
-  req.notesData = req.notesData.filter(n => n.id !== noteId);
-
-  if (req.notesData.length < initialLength) {
-    logger.info(`DELETE /api/notes/${noteId} - Notiz gelöscht`); // Logge den Aufruf
-    res.status(204).send(); // Erfolgreich gelöscht, keine Antwort-Daten
-  } else {
-    logger.warn(`DELETE /api/notes/${noteId} - Notiz nicht gefunden`); // Logge den Fehler
-    res.status(404).json({ error: 'Notiz nicht gefunden' });
+  try {
+    const deleted = await deleteItem(noteId);
+    if (deleted) {
+      logger.info(`DELETE /api/notes/${noteId} - Notiz gelöscht`);
+      res.status(204).send();
+    } else {
+      logger.warn(`DELETE /api/notes/${noteId} - Notiz nicht gefunden`);
+      res.status(404).json({ error: 'Notiz nicht gefunden' });
+    }
+  } catch (error) {
+    logger.error(`DELETE /api/notes/${noteId} - Fehler:`, error);
+    res.status(500).json({ error: 'Interner Serverfehler' });
   }
 });
 
-// module.exports = router;
+// PUT /api/notes/:id (Eine bestehende Notiz aktualisieren)
+router.put('/:id', async (req, res) => {
+  const noteId = parseInt(req.params.id);
+  const { title, content, is_completed } = req.body;
+  if (title && content !== undefined && is_completed !== undefined) {
+    try {
+      const updatedNote = await updateItem(noteId, { title, content, is_completed });
+      if (updatedNote) {
+        logger.info(`PUT /api/notes/${noteId} - Notiz aktualisiert: ${JSON.stringify(updatedNote)}`);
+        res.json(updatedNote);
+      } else {
+        logger.warn(`PUT /api/notes/${noteId} - Notiz nicht gefunden`);
+        res.status(404).json({ error: 'Notiz nicht gefunden' });
+      }
+    } catch (error) {
+      logger.error(`PUT /api/notes/${noteId} - Fehler beim Aktualisieren der Notiz`, error);
+      res.status(500).json({ error: 'Interner Serverfehler' });
+    }
+  } else {
+    logger.error(`PUT /api/notes/${noteId} - Ungültige Daten für die Aktualisierung`);
+    res.status(400).json({ error: 'Titel, Inhalt und is_completed sind erforderlich' });
+  }
+});
+
 export default router;
