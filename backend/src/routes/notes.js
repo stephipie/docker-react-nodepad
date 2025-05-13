@@ -10,24 +10,24 @@ import {
   createItem,
   updateItem,
   deleteItem
- } from '../services/notes.Service.js'; // Importiere die Service-Funktionen
+} from '../services/notes.service.js'; // Importiere die Service-Funktionen
 
 // Einfache In-Memory-Datenspeicherung für Notizen
 // let notes = [];
 // let nextId = 1;
 
 // GET /api/notes (Alle Notizen abrufen)
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   logger.info('GET /api/notes - Notizen aufgerufen'); // Logge den Aufruf
-  const data = findAllItems();
+  const data = await findAllItems();
   logger.info('GET /api/notes - Notizen abgerufen', { data }); // Logge die abgerufenen Daten
-  res.json({ok}); // Alle Notizen zurückgeben
+  res.json(data); // Alle Notizen zurückgeben
 });
 
 // GET /api/notes/:id (Eine einzelne Notiz anhand der ID abrufen)
 router.get('/:id', (req, res) => {
   const noteId = parseInt(req.params.id);
-  const note = req.notesData.find(n => n.id === noteId);
+  const note = findItemById(noteId);
 
   if (note) {
     logger.info(`GET /api/notes/${noteId} - Notiz gefunden`); // Logge den Aufruf
@@ -42,9 +42,7 @@ router.get('/:id', (req, res) => {
 router.post('/', (req, res) => {
   const { title, content } = req.body;
   if (title && content) {
-    const nextId = req.notesData.length ? Math.max(...req.notesData.map(n => n.id)) + 1 : 1;
-    const newNote = { id: nextId, title, content };
-    req.notesData.push(newNote); // Neue Notiz hinzufügen
+    const newNote = createItem({ title, content, is_completed: false });
     logger.info(`POST /api/notes - Neue Notiz hinzugefügt: ${JSON.stringify(newNote)}`); // Logge den Aufruf
     res.status(201).json(newNote);
   } else {

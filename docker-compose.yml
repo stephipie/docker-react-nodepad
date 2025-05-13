@@ -23,11 +23,17 @@ services:
       DB_HOST: database
       DB_PORT: 5432
       DB_USER: ${POSTGRES_USER}
-      DB_NAME: ${POSTGRES_DB} 
+      DB_NAME: ${POSTGRES_DB}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       PORT: 3000
+    healthcheck:
+      test: curl -f http://localhost:3000/api/health/ || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     # volumes:
-    #   - backend_data:/app/data        
+    #   - backend_data:/app/data
   database:
     image: postgres:17-alpine
     volumes:
@@ -42,8 +48,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
-      retries: 5  
+      retries: 5
 volumes:
   db_data:
   backend_data:
-            
