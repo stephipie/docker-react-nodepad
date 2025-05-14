@@ -52,32 +52,39 @@ function App() {
     }
   };
 
-  // In App.jsx
-const toggleComplete = async (id, isCompleted) => {
-  try {
-    const response = await fetch(`<span class="math-inline">\{apiUrl\}/notes/</span>{id}`, {
-      method: 'PUT', // Oder 'PATCH'
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ is_completed: !isCompleted }), // Toggle den aktuellen Status
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+  const toggleComplete = async (id, isCompleted) => {
+    try {
+      // Finde die aktuelle Notiz
+      const currentNote = notes.find(note => note.id === id);
+      
+      const response = await fetch(`${apiUrl}/notes/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: currentNote.title,
+          content: currentNote.content,
+          is_completed: !currentNote.is_completed
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const updatedNote = await response.json();
+      setNotes(notes.map(note =>
+        note.id === id ? { ...note, is_completed: !note.is_completed } : note
+      ));
+    } catch (error) {
+      console.error(`Fehler beim Aktualisieren des Status der Notiz mit ID ${id}:`, error);
     }
-    const updatedNote = await response.json();
-    // Aktualisiere den lokalen State, um die Änderung widerzuspiegeln
-    setNotes(notes.map(note =>
-      note.id === id ? { ...note, is_completed: updatedNote.is_completed } : note
-    ));
-  } catch (error) {
-    console.error(`Fehler beim Aktualisieren des Status der Notiz mit ID ${id}:`, error);
-  }
-};
+  };
 
   return (
     <div>
       <h1>Mein Mini-Notizblock</h1>
       <NoteInput onAddNote={addNote} />
-      <NoteList notes={notes} onDeleteNote={deleteNote} />
+      <NoteList notes={notes} onDeleteNote={deleteNote} onToggleComplete={toggleComplete}/>
     </div>
   );
 }
