@@ -7,6 +7,7 @@ function App() {
   const [error, setError] = useState(null);
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  // Lade Notizen beim ersten Render
   useEffect(() => {
     fetchNotes();
   }, []);
@@ -30,14 +31,24 @@ function App() {
       const response = await fetch(`${apiUrl}/notes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...newNote, is_completed: false }),
+        body: JSON.stringify({ 
+          title: newNote.title,
+          content: newNote.content,
+          is_completed: false 
+        }),
       });
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
-      setNotes([...notes, data]);
+      
+      const createdNote = await response.json();
+      console.info('Neue Notiz erstellt:', createdNote);
+      
+      // Hole die aktuellen Notizen neu, um sicherzustellen, dass alle Daten korrekt sind
+      await fetchNotes();
     } catch (error) {
+      setError(error);
       console.error('Fehler beim Hinzufügen der Notiz:', error);
     }
   };
@@ -102,7 +113,7 @@ function App() {
   return (
     <div>
       <h1>Mein Mini-Notizblock</h1>
-      {error && <p className="error">Fehler: {error.message}</p>}
+      {error && <p className="error">{error.message}</p>}
       <p>Hier können Sie Ihre Notizen hinzufügen, löschen und den Status ändern.</p>
       <NoteInput onAddNote={addNote} />
       <NoteList notes={notes} onDeleteNote={deleteNote} onToggleComplete={toggleComplete}/>
