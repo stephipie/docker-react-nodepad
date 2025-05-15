@@ -2,8 +2,14 @@
 import { query } from '../db.js';
 // Alle Items abrufen (SELECT)
 async function findAllItems() {
-    const notes = await query('SELECT id, title, content, is_completed FROM notes ORDER BY created_at ASC;');
-    return notes.rows; // Gibt Array von Item-Objekten zurück
+    try {
+        const notes = await query('SELECT id, title, content, is_completed FROM notes ORDER BY created_at ASC;');
+        return notes.rows; // Gibt Array von Item-Objekten zurück
+        
+    } catch (error) {  
+        console.error('Fehler beim Abrufen der Notizen:', error);
+        throw error; // Fehler weitergeben        
+    }
 }
 
 // Ein Item anhand der ID abrufen (SELECT)

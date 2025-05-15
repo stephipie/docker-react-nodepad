@@ -4,6 +4,7 @@ import NoteList from './components/NoteList';
 
 function App() {
   const [notes, setNotes] = useState([]);
+  const [error, setError] = useState(null);
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -19,6 +20,7 @@ function App() {
       const data = await response.json();
       setNotes(data);
     } catch (error) {
+      setError(error);
       console.error('Fehler beim Laden der Notizen:', error);
     }
   };
@@ -83,6 +85,8 @@ function App() {
   return (
     <div>
       <h1>Mein Mini-Notizblock</h1>
+      {error && <p className="error">Fehler: {error.message}</p>}
+      <p>Hier können Sie Ihre Notizen hinzufügen, löschen und den Status ändern.</p>
       <NoteInput onAddNote={addNote} />
       <NoteList notes={notes} onDeleteNote={deleteNote} onToggleComplete={toggleComplete}/>
     </div>

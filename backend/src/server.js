@@ -56,7 +56,7 @@ app.listen(port, async () => {
     logger.info('Initial DB connection successful.');
   } catch (err) {
     logger.error('Initial DB connection failed. Exiting...');
-    process.exit(1);
+    // process.exit(1);
   }
   logger.info(`Server läuft auf http://localhost:${port}`); // Verwende den Logger
 });
