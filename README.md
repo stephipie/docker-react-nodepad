@@ -164,13 +164,21 @@ Unsere Maßnahmen:
 
 
 1. Laufender Anwendung
+
 ![Running Application](/screenshots/running-app.png)
+
 ![Running Application](/screenshots/logs-running-app.png)
 
 2. Frontend mit Fehlermeldung bei DB-Ausfall
+
 ![Error State](/screenshots/db-down-status.png)
+
+![Log Message DB](/screenshots/logs-of-db-shutdown-restart.png)
+
 ![Restart DB State](/screenshots/after-restart-db.png)
 
 3. Docker Compose Status mit "healthy" Services
+
 ![Healthy Services](/screenshots/compose-up-build-d.png)
+
 ![Healthy Services](/screenshots/compose-ps.png)
