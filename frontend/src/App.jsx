@@ -49,6 +49,7 @@ function App() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       setNotes(notes.filter((note) => note.id !== id));
+      console.info(`Notiz mit ID ${id} gelöscht`);
     } catch (error) {
       console.error(`Fehler beim Löschen der Notiz mit ID ${id}:`, error);
     }

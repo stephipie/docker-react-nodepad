@@ -62,10 +62,10 @@ router.post('/', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   const noteId = parseInt(req.params.id);
   try {
-    const deleted = await deleteItem(noteId);
-    if (deleted) {
+    const deletedNote = await deleteItem(noteId);
+    if (deletedNote) {
       logger.info(`DELETE /api/notes/${noteId} - Notiz gelöscht`);
-      res.status(204).send();
+      res.status(deletedNote ? 200 : 404).json({ message: 'Notiz gelöscht' });
     } else {
       logger.warn(`DELETE /api/notes/${noteId} - Notiz nicht gefunden`);
       res.status(404).json({ error: 'Notiz nicht gefunden' });
