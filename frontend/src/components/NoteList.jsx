@@ -1,6 +1,11 @@
 import NoteItem from './NoteItem';
 
-function NoteList({ notes, onDeleteNote, onToggleComplete }) {
+function NoteList({ notes = [], onDeleteNote, onToggleComplete }) {
+  if (!Array.isArray(notes)) {
+    console.error('notes is not an array:', notes);
+    return null;
+  }
+
   return (
     <ul>
       {notes.map((note) => (

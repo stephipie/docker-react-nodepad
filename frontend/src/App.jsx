@@ -58,27 +58,43 @@ function App() {
     try {
       // Finde die aktuelle Notiz
       const currentNote = notes.find(note => note.id === id);
-      
+      console.log("Gefundene Notiz:", currentNote); // Zeigt die gefundene Notiz
+      if (!currentNote) {
+        console.error(`Notiz mit ID ${id} nicht gefunden.`);
+        return;
+      }
+
+      console.log("Daten vor dem Senden:", {
+        title: currentNote.title,
+        content: currentNote.content,
+        is_completed: !isCompleted
+      });
+
       const response = await fetch(`${apiUrl}/notes/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: currentNote.title,
           content: currentNote.content,
-          is_completed: !currentNote.is_completed
+          is_completed: !isCompleted
         }),
       });
-      
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
       }
-      
+
       const updatedNote = await response.json();
+      console.log('Aktualisierte Notiz:', updatedNote);
+
+      // Aktualisiere den Status mit den Daten vom Server
       setNotes(notes.map(note =>
-        note.id === id ? { ...note, is_completed: !note.is_completed } : note
+        note.id === id ? { ...currentNote, is_completed: !isCompleted } : note
       ));
     } catch (error) {
       console.error(`Fehler beim Aktualisieren des Status der Notiz mit ID ${id}:`, error);
+      setError(error);
     }
   };
 

@@ -1,5 +1,5 @@
 function NoteItem({ note, onDeleteNote, onToggleComplete }) {
-  const handleChange = (event) => {
+  const handleChange = () => {
     onToggleComplete(note.id, note.is_completed);
   };
 
@@ -12,7 +12,7 @@ function NoteItem({ note, onDeleteNote, onToggleComplete }) {
           Erledigt:
           <input
             type="checkbox"
-            checked={note.is_completed}
+            checked={note.is_completed || false}
             onChange={handleChange}
           />
         </label>
