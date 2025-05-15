@@ -20,4 +20,4 @@ EXPOSE 3000
 
 # Startkommando für die Anwendung definieren
 # shell command instead of exec form
-CMD sh -c "npm run initdb && npm start"
+CMD sh -c "npm start"

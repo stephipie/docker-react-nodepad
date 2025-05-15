@@ -10,7 +10,7 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-      
+
   backend:
     build:
       context: ./backend
@@ -37,6 +37,8 @@ services:
     image: postgres:17-alpine
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -50,4 +52,3 @@ services:
       retries: 5
 volumes:
   db_data:
-  backend_data:
