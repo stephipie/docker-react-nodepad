@@ -1,0 +1,93 @@
+# Docker Stack needs the version
+version: '3.8'
+
+services:
+  frontend:
+    image: stephipie/frontend-app:latest
+    deploy:
+      placement:
+        constraints:
+          - node.labels.role == frontend       
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "8080:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - app-network
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://backend:3000/api  
+
+  backend:
+    image: stephipie/backend-app:latest
+    deploy:
+      placement:
+        constraints:
+          - node.labels.role == backend    
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    environment:
+      - PORT=3000
+      - FEATURE_HEALTH=true
+      - DB_HOST=app_database
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+      - DB_NAME=items-db
+    expose:
+      - 3000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+    networks:
+      - app-network
+    depends_on:
+      - database
+
+  database:
+    image: stephipie/postgres:latest
+    deploy:
+      replicas: 1 
+      placement:
+        constraints:
+          - node.labels.role == database
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: items-db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: overlay 
+
+volumes:
+  pgdata:
+    driver: local  

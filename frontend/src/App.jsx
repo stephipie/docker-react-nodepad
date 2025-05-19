@@ -14,7 +14,7 @@ function App() {
 
   const fetchNotes = async () => {
     try {
-      const response = await fetch(`${apiUrl}/notes`);
+      const response = await fetch(`/${apiUrl}/notes`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -28,7 +28,7 @@ function App() {
 
   const addNote = async (newNote) => {
     try {
-      const response = await fetch(`${apiUrl}/notes`, {
+      const response = await fetch(`/${apiUrl}/notes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -55,7 +55,7 @@ function App() {
 
   const deleteNote = async (id) => {
     try {
-      const response = await fetch(`${apiUrl}/notes/${id}`, { method: 'DELETE' });
+      const response = await fetch(`/${apiUrl}/notes/${id}`, { method: 'DELETE' });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -82,7 +82,7 @@ function App() {
         is_completed: !isCompleted
       });
 
-      const response = await fetch(`${apiUrl}/notes/${id}`, {
+      const response = await fetch(`/${apiUrl}/notes/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

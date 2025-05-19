@@ -1,0 +1,33 @@
+#cloud-config
+
+# Grundlegende Konfiguration
+timezone: Europe/Berlin
+
+# Pakete aktualisieren und installieren
+package_update: true
+package_upgrade: true
+
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+
+# Einfachere Befehle für den Anfang
+runcmd:
+  - echo "Installiere Docker..."
+  - curl -fsSL https://get.docker.com -o get-docker.sh
+  - sh get-docker.sh
+  - usermod -aG docker $USER
+
+
+# Benutzer-Einstellungen
+users:
+  - default
+  - name: ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+
+# SSH-Einstellungen
+ssh_pwauth: true
