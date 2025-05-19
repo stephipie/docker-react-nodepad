@@ -195,29 +195,45 @@ Stellen Sie sicher, dass Multipass installiert ist.
 
 Erstellen Sie vier Multipass VMs (Manager und drei Worker):
 
+```shell
+
 ./ setup-multipass.sh
+
+```
 
 Docker Swarm einrichten:
 
 Melden Sie sich beim Manager-Knoten an:
 
+```shell
 multipass shell manager
+
+```
 
 Initialisieren Sie den Swarm auf dem Manager-Knoten:
 
+```shell
 docker swarm init
 
-Melden Sie sich bei den Worker-Knoten an und treten Sie dem Swarm bei. Verwenden Sie den Befehl, der von docker swarm init ausgegeben wird:
+```
 
+Melden Sie sich bei den Worker-Knoten an und treten Sie dem Swarm bei. Verwenden Sie den Befehl, der von docker swarm init ausgegeben wird:
+```shell
 multipass shell worker1
+
 docker swarm join --token <SWARM_TOKEN> <MANAGER_IP>:2377
 exit
+
 multipass shell worker2
+
 docker swarm join --token <SWARM_TOKEN> <MANAGER_IP>:2377
 exit
+
 multipass shell worker3
+
 docker swarm join --token <SWARM_TOKEN> <MANAGER_IP>:2377
 exit
+```
 
 (<SWARM_TOKEN> und <MANAGER_IP> durch die entsprechenden Werte ersetzen)
 
@@ -225,20 +241,28 @@ Worker Nodes labeln:
 
 Melden Sie sich beim Manager-Knoten an:
 
+```shell
 multipass shell manager
+
+```
 
 Labeln Sie die Worker-Nodes:
 
+```shell
 docker node update --label-add role=frontend worker1
 docker node update --label-add role=backend worker2
 docker node update --label-add role=database worker3
 
+```
+
 Überprüfen Sie die Labels:
 
+```shell
 docker node ls
 docker node inspect worker1 --pretty
 docker node inspect worker2 --pretty
 docker node inspect worker3 --pretty
+```
 
 Swarm Stack Datei erstellen:
 
