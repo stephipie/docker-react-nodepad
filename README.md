@@ -196,8 +196,16 @@ Stellen Sie sicher, dass Multipass installiert ist.
 Erstellen Sie vier Multipass VMs (Manager und drei Worker):
 
 ```shell
+multipass launch --name manager --cpus 1 --memory 1G --cloud-init cloud-init.yml
+multipass launch --name worker1 --cpus 1 --memory 1G --cloud-init cloud-init.yml
+multipass launch --name worker2 --cpus 1 --memory 1G --cloud-init cloud-init.yml
+multipass launch --name worker3 --cpus 2 --memory 2G --cloud-init cloud-init.yml
+```
+oder erstellen Sie ein Skript
 
-./ setup-multipass.sh
+```shell
+
+./setup-multipass.sh
 
 ```
 
