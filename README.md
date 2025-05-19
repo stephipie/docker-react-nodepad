@@ -94,7 +94,7 @@ try {
 ### Start des Stacks
 1. Repository klonen
 2. .env Datei erstellen:
-   ```
+   ```env
    POSTGRES_USER=your_user
    POSTGRES_PASSWORD=your_password
    POSTGRES_DB=notes_db
@@ -244,63 +244,69 @@ Swarm Stack Datei erstellen:
 
 Erstellen Sie eine docker-stack.yml-Datei mit folgendem Inhalt (oder passen Sie Ihre bestehende docker-compose.yml an):
 
+```yaml
 version: '3.8'
 services:
-  frontend:
-    image: dein-dockerhub-user/mein-frontend:latest
-    deploy:
-      placement:
-        constraints:
-          - node.labels.role == frontend
-      replicas: 2
-    ports:
-      - "8080:80"
-    networks:
-      - app-network
-    depends_on:
-      - backend
-  backend:
-    image: dein-dockerhub-user/mein-backend:latest
-    deploy:
-      placement:
-        constraints:
-          - node.labels.role == backend
-      replicas: 2
-    environment:
-      - PORT=3000
-      - FEATURE_HEALTH=true
-      - DB_HOST=app_database
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_PORT=5432
-      - DB_NAME=items-db
-    expose:
-      - 3000
-    networks:
-      - app-network
-    depends_on:
-      - database
-  database:
-    image: dein-dockerhub-user/postgres:latest
-    deploy:
-      placement:
-        constraints:
-          - node.labels.role == database
-      replicas: 1
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: items-db
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - app-network
+    frontend:
+        image: dein-dockerhub-user/mein-frontend:latest
+        deploy:
+            placement:
+                constraints:
+                    - node.labels.role == frontend
+            replicas: 2
+        ports:
+            - "8080:80"
+        networks:
+            - app-network
+        depends_on:
+            - backend
+
+    backend:
+        image: dein-dockerhub-user/mein-backend:latest
+        deploy:
+            placement:
+                constraints:
+                    - node.labels.role == backend
+            replicas: 2
+        environment:
+            - PORT=3000
+            - FEATURE_HEALTH=true
+            - DB_HOST=app_database
+            - DB_USER=postgres
+            - DB_PASSWORD=postgres
+            - DB_PORT=5432
+            - DB_NAME=items-db
+        expose:
+            - 3000
+        networks:
+            - app-network
+        depends_on:
+            - database
+
+    database:
+        image: dein-dockerhub-user/postgres:latest
+        deploy:
+            placement:
+                constraints:
+                    - node.labels.role == database
+            replicas: 1
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: items-db
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        networks:
+            - app-network
+
 networks:
-  app-network:
-    driver: overlay
+    app-network:
+        driver: overlay
+
 volumes:
-  pgdata:
-    driver: local
+    pgdata:
+        driver: local
+```
 
 (Ersetzen Sie dein-dockerhub-user/mein-frontend:latest und dein-dockerhub-user/mein-backend:latest durch Ihre tatsächlichen Docker Hub Image-Namen.)
 
@@ -308,41 +314,70 @@ Docker Images für den Swarm vorbereiten (Build & Push):
 
 Bauen Sie die Docker-Images für Backend und Frontend:
 
+```bash
+
 docker build -t dein-dockerhub-user/mein-backend:latest ./backend
 docker build -t dein-dockerhub-user/mein-frontend:latest ./frontend
 docker build -t dein-dockerhub-user/postgres:latest ./database
 
+```
+
 Melden Sie sich bei Docker Hub an:
 
+```bash
 docker login
 
+```
+
 Pushen Sie die Images zu Docker Hub:
+
+```bash
 
 docker push dein-dockerhub-user/mein-backend:latest
 docker push dein-dockerhub-user/mein-frontend:latest
 docker push dein-dockerhub-user/postgres:latest
 
+```
+
 Stack deployen:
 
 Kopieren Sie die docker-stack.yml auf den Swarm Manager.
 
+```bash
+
 multipass transfer docker-stack.yml manager:.
+
+```
 
 Deployen Sie den Stack:
 
+Multipass Manager VM
+
+```shell
+
 docker stack deploy -c docker-stack.yml app
+
+```
 
 Deployment überprüfen:
 
 Überprüfen Sie den Status der Services:
 
+```shell
+
 docker stack services app
 
+```
+
 Überprüfen Sie den Status der Tasks:
+
+```shell
 
 docker service ps app_frontend
 docker service ps app_backend
 docker service ps app_database
+
+```
 
 Greifen Sie auf die Anwendung zu, um die E2E-Funktionalität zu testen (siehe Abschnitt "Anwendung testen" unten).
 
@@ -351,7 +386,7 @@ IP-Adresse des Worker-Nodes ermitteln:
 Ermitteln Sie die IP-Adresse des Worker-Nodes, auf dem das Frontend läuft (in diesem Fall worker1). Sie können dies mit multipass list oder durch Abrufen der IP innerhalb der VM tun.
 
 Anwendung im Browser aufrufen:
-Öffnen Sie einen Webbrowser und navigieren Sie zu http://<WORKER1_IP>:8080.
+Öffnen Sie einen Webbrowser und navigieren Sie zu [Linktext](http://<WORKER1_IP>:8080).
 
 E2E CRUD testen:
 Führen Sie alle CRUD-Operationen (Erstellen, Lesen, Aktualisieren, Löschen) durch, um sicherzustellen, dass die Anwendung wie erwartet funktioniert.
@@ -374,12 +409,17 @@ Knoten-Labels:
 Logs prüfen
 Verwenden Sie die folgenden Befehle, um die Logs der Dienste zu überprüfen:
 
+```shell
+
 docker service logs app_frontend
 docker service logs app_backend
 docker service logs app_database
 
+```
+
 Alternativ können Sie sich bei den Worker-VMs anmelden und die Container-Logs direkt abrufen:
 
+```shell
 multipass shell worker1
 docker logs <frontend_container_id>
 exit
@@ -389,6 +429,7 @@ exit
 multipass shell worker3
 docker logs <database_container_id>
 exit
+```
 
 .gitignore und .dockerignore
 Stellen Sie sicher, dass Ihr Repository korrekte .gitignore- und .dockerignore-Dateien enthält, um unnötige Dateien von der Versionskontrolle und dem Image-Build auszuschließen.
