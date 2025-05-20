@@ -351,8 +351,9 @@ Bauen Sie die Docker-Images für Backend und Frontend:
 
 ```bash
 
-docker build -t dein-dockerhub-user/mein-backend:latest ./backend
-docker build -t dein-dockerhub-user/mein-frontend:latest ./frontend
+docker build -t dein-dockerhub-user/backend-app:latest ./backend
+docker build -t frontend-app --build-arg VITE_API_URL=api ./frontend
+docker tag frontend-app:latest dein-dockerhub-user/frontend-app
 docker build -t dein-dockerhub-user/postgres:latest ./database
 
 ```
@@ -368,8 +369,8 @@ Pushen Sie die Images zu Docker Hub:
 
 ```bash
 
-docker push dein-dockerhub-user/mein-backend:latest
-docker push dein-dockerhub-user/mein-frontend:latest
+docker push dein-dockerhub-user/backend-app:latest
+docker push dein-dockerhub-user/frontend-app:latest
 docker push dein-dockerhub-user/postgres:latest
 
 ```
@@ -501,5 +502,36 @@ exit
 open shell
 
 docker version
+
+```
+
+### Fehlerquelle beim build des Frontend Images
+
+Mit Git - Bash unter Windows in VS - Code am Besten folgenden Befehl nutzen und den Pfad in der App.jsx anpassen
+
+```bash
+
+docker build -t frontend-app --build-arg VITE_API_URL=api ./frontend  
+
+```
+
+App.jsx
+```bash
+
+await fetch(`/${apiUrl}/notes`);
+
+```
+
+Ansonsten funktioniert folgender build - Befehl
+
+```bash
+
+docker build -t frontend-app --build-arg VITE_API_URL="/api" ./frontend 
+
+```
+App.jsx
+```bash
+
+await fetch(`${apiUrl}/notes`);
 
 ```
