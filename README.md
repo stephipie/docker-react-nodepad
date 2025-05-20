@@ -186,10 +186,11 @@ Unsere Maßnahmen:
 Aktueller Zustand des Stacks
 Mein Fullstack-Projekt ist eine robuste Anwendung, die für die Orchestrierung bereit ist. Sie ist erfolgreich auf einem Docker Swarm Cluster mit spezifischer Node-Platzierung deployed. Dies ermöglicht eine skalierbare und fehlertolerante Ausführung der Anwendung.
 
-Einrichtung des Swarms und Deployment des Stacks
+## Einrichtung des Swarms und Deployment des Stacks
+
 Die folgenden Schritte beschreiben, wie man den Swarm einrichtet und den Stack deployd:
 
-Multipass VMs vorbereiten:
+### Multipass VMs vorbereiten:
 
 Stellen Sie sicher, dass Multipass installiert ist.
 
@@ -209,16 +210,17 @@ oder erstellen Sie ein Skript
 
 ```
 
-Docker Swarm einrichten:
+### Docker Swarm einrichten:
 
 Melden Sie sich beim Manager-Knoten an:
 
 ```shell
+
 multipass shell manager
 
 ```
 
-Initialisieren Sie den Swarm auf dem Manager-Knoten:
+### Initialisieren Sie den Swarm auf dem Manager-Knoten:
 
 ```shell
 docker swarm init
@@ -226,6 +228,7 @@ docker swarm init
 ```
 
 Melden Sie sich bei den Worker-Knoten an und treten Sie dem Swarm bei. Verwenden Sie den Befehl, der von docker swarm init ausgegeben wird:
+
 ```shell
 multipass shell worker1
 
@@ -245,7 +248,7 @@ exit
 
 (<SWARM_TOKEN> und <MANAGER_IP> durch die entsprechenden Werte ersetzen)
 
-Worker Nodes labeln:
+### Worker Nodes labeln:
 
 Melden Sie sich beim Manager-Knoten an:
 
@@ -272,7 +275,7 @@ docker node inspect worker2 --pretty
 docker node inspect worker3 --pretty
 ```
 
-Swarm Stack Datei erstellen:
+### Swarm Stack Datei erstellen:
 
 Erstellen Sie eine docker-stack.yml-Datei mit folgendem Inhalt (oder passen Sie Ihre bestehende docker-compose.yml an):
 
@@ -342,7 +345,7 @@ volumes:
 
 (Ersetzen Sie dein-dockerhub-user/mein-frontend:latest und dein-dockerhub-user/mein-backend:latest durch Ihre tatsächlichen Docker Hub Image-Namen.)
 
-Docker Images für den Swarm vorbereiten (Build & Push):
+### Docker Images für den Swarm vorbereiten (Build & Push):
 
 Bauen Sie die Docker-Images für Backend und Frontend:
 
@@ -371,7 +374,7 @@ docker push dein-dockerhub-user/postgres:latest
 
 ```
 
-Stack deployen:
+### Stack deployen:
 
 Kopieren Sie die docker-stack.yml auf den Swarm Manager.
 
@@ -391,7 +394,7 @@ docker stack deploy -c docker-stack.yml app
 
 ```
 
-Deployment überprüfen:
+### Deployment überprüfen:
 
 Überprüfen Sie den Status der Services:
 
@@ -413,32 +416,44 @@ docker service ps app_database
 
 Greifen Sie auf die Anwendung zu, um die E2E-Funktionalität zu testen (siehe Abschnitt "Anwendung testen" unten).
 
-Anwendung testen
-IP-Adresse des Worker-Nodes ermitteln:
+## Anwendung testen
+
+### IP-Adresse des Worker-Nodes ermitteln:
+
 Ermitteln Sie die IP-Adresse des Worker-Nodes, auf dem das Frontend läuft (in diesem Fall worker1). Sie können dies mit multipass list oder durch Abrufen der IP innerhalb der VM tun.
 
-Anwendung im Browser aufrufen:
+### Anwendung im Browser aufrufen:
+
 Öffnen Sie einen Webbrowser und navigieren Sie zu [Linktext](http://<WORKER1_IP>:8080).
 
-E2E CRUD testen:
+### E2E CRUD testen:
+
 Führen Sie alle CRUD-Operationen (Erstellen, Lesen, Aktualisieren, Löschen) durch, um sicherzustellen, dass die Anwendung wie erwartet funktioniert.
 
-Nachweis der erfolgreichen Bereitstellung
+## Nachweis der erfolgreichen Bereitstellung
+
 Die folgenden Screenshots belegen die erfolgreiche Bereitstellung:
 
-Laufende Anwendung:
+### Laufende Anwendung:
+
 [Ein Screenshot der laufenden Anwendung, der die E2E-CRUD-Funktionalität demonstriert]
+
 ![Running Application](/screenshots/Screenshot%202025-05-19%20174615.png)
 
-Korrekte Platzierung der Dienste:
+### Korrekte Platzierung der Dienste:
+
 [Ein Screenshot der Ausgabe von docker service ps <servicename> oder docker stack services <stackname>, der die korrekte Platzierung der Dienste auf den gelabelten Nodes und den Healthcheck-Status zeigt]
+
 ![Docker Service](/screenshots/Screenshot%202025-05-19%20174631.png)
 
-Knoten-Labels:
+### Knoten-Labels:
+
 [Ein Screenshot der Ausgabe von docker node ls mit den gesetzten Labels]
+
 ![Docker Node](/screenshots/dockernode.png)
 
-Logs prüfen
+### Logs prüfen
+
 Verwenden Sie die folgenden Befehle, um die Logs der Dienste zu überprüfen:
 
 ```shell
@@ -464,4 +479,27 @@ exit
 ```
 
 .gitignore und .dockerignore
-Stellen Sie sicher, dass Ihr Repository korrekte .gitignore- und .dockerignore-Dateien enthält, um unnötige Dateien von der Versionskontrolle und dem Image-Build auszuschließen.
+Stellen Sie sicher, dass Ihr Repository korrekte .gitignore- und .dockerignore-Dateien enthält, um unnötige Dateien von der Versionskontrolle und dem Image-Build auszuschließen. 
+
+### Tipp beim Debugging
+
+Überprüfen Sie auf den einzelnen Knoten die Version von Docker, mit 
+
+```bash
+
+docker version
+
+```
+falls hier eine Fehlermeldung kommt nochmal den Befehl aus der cloud-init.yml erneut durchführen
+
+```bash
+
+sudo usermod -aG docker $USER
+
+exit
+
+open shell
+
+docker version
+
+```
