@@ -424,7 +424,7 @@ Ermitteln Sie die IP-Adresse des Worker-Nodes, auf dem das Frontend läuft (in d
 
 ### Anwendung im Browser aufrufen:
 
-Öffnen Sie einen Webbrowser und navigieren Sie zu [Linktext](http://<WORKER1_IP>:8080).
+Öffnen Sie einen Webbrowser und navigieren Sie zu [http://<WORKER1_IP>:8080].
 
 ### E2E CRUD testen:
 
