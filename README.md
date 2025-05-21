@@ -535,3 +535,22 @@ App.jsx
 await fetch(`${apiUrl}/notes`);
 
 ```
+
+# Kubernetes
+
+## Aufgabe: Einführung in Kubernetes: Lokales Cluster aufsetzen & die Grundlagen überprüfen
+
+## Ziel:
+Nach der theoretischen Einführung in Kubernetes wird der erste praktische Schritt gemacht: das Aufsetzen eines lokalen Kubernetes Clusters und die Verifikation, dass kubectl erfolgreich mit dem Cluster kommunizieren kann. Ziel ist es, die im Theorieteil behandelten Konzepte (Was ist ein Cluster, Control Plane, Worker Node, kubectl als CLI-Tool) praktisch zu überprüfen, ohne bereits Workloads (wie Pods oder Deployments) zu deployen.
+
+## Lernziele dieser Aufgabe:
+
+Ein grundlegendes Verständnis dafür entwickeln, wie ein lokales Kubernetes Cluster gestartet wird.
+Erfolgreich ein lokales Cluster aufsetzen (mit Docker Desktop oder Minikube müsste ggf. noch installiert werden ).
+
+Verifizieren, dass kubectl als Kommandozeilen-Tool korrekt mit dem Cluster verbunden ist und grundlegende Informationen abrufen kann.
+Die im Theorieteil behandelten Konzepte durch die Beantwortung von Reflexionsfragen festigen.
+
+## Speicherort der Abgabe:
+Die Antworten auf die Reflexionsfragen sind in der Datei kubernetes/k8s-intro-reflection.md im Projekt-Repository zu finden.
+
