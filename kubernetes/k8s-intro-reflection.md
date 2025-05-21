@@ -32,7 +32,7 @@ Hier erwartete ich, dass dieser Befehl eine Liste der Nodes meines lokalen Clust
 
 Dieser Befehl sollte grundlegende Informationen über das Cluster und die Adresse des API Servers anzeigen. Die Ausgabe zeigte die URL des Kubernetes Control Plane (API Server) und bestätigte, dass der Dienst läuft, was die erfolgreiche Verbindung unterstrich.
 
-![kubectl](/screenshots/kubectl.png)
+![Kubernetes local Cluster Status](/screenshots/kubectl.png)
 
 
 ## Basierend auf dem Theorieteil: Erkläre kurz die Kernidee der deklarativen Philosophie von Kubernetes.
