@@ -38,3 +38,25 @@ Dieser Befehl sollte grundlegende Informationen über das Cluster und die Adress
 ## Basierend auf dem Theorieteil: Erkläre kurz die Kernidee der deklarativen Philosophie von Kubernetes.
 
 Die Kernidee der deklarativen Philosophie von Kubernetes ist, dass man nicht den Weg beschreibt, wie ein System seinen Zustand erreichen soll (imperativ), sondern lediglich den gewünschten Endzustand (deklarativ). Man sagt Kubernetes also nicht "Installiere diese App, dann skaliere sie auf drei Instanzen und leite den Traffic so um", sondern man definiert in einer Konfigurationsdatei (YAML), wie die Anwendung aussehen soll: Sie soll existieren, in drei Replikate skaliert sein und einen bestimmten Service haben. Kubernetes übernimmt dann autonom die Aufgabe, diesen gewünschten Zustand herzustellen und kontinuierlich zu überwachen und aufrechtzuerhalten, selbst wenn sich Komponenten ändern oder ausfallen. Dies reduziert die Komplexität der Verwaltung erheblich, da man sich auf das "Was" konzentrieren kann und nicht auf das "Wie".
+
+### Alternativ
+
+Installtion über Windows Powershell
+
+```Shell
+
+choco install minikube
+
+```
+```bash
+
+minikube start --driver=docker
+
+kubectl config current-context
+
+kubectl get nodes
+
+kubectl cluster-info
+
+```
+![Kubernetes minikube Cluster Status](/screenshots/minikube.png)
