@@ -1,0 +1,36 @@
+{{- if .Values.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "my-notepad-chart.fullname" . }}
+  labels:
+    {{- include "my-notepad-chart.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.paths.frontend }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "my-notepad-chart.frontendFullname" . }}
+                port:
+                  number: {{ .Values.frontend.service.port }}
+          - path: {{ .Values.ingress.paths.backendApi }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "my-notepad-chart.backendFullname" . }}
+                port:
+                  number: {{ .Values.backend.service.port }}
+  {{- with .Values.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

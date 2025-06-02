@@ -1,0 +1,32 @@
+CHART NAME: {{ .Chart.Name }}
+CHART VERSION: {{ .Chart.Version }}
+APP VERSION: {{ .Chart.AppVersion }}
+
+** Please be patient while the chart is being deployed **
+
+Your full-stack application has been deployed.
+
+1. Get the application URL by running these commands:
+{{- if .Values.ingress.enabled }}
+  http://{{ .Values.ingress.host }}
+{{- else }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "my-notepad-chart.frontendFullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- end }}
+
+2. Check the status of your pods:
+  kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/instance={{ .Release.Name }}"
+
+3. Access your application:
+  Frontend: http://{{ .Values.ingress.host }}
+  Backend API: http://{{ .Values.ingress.host }}{{ .Values.ingress.paths.backendApi }}
+
+4. View the logs:
+  Frontend: kubectl logs -f deployment/{{ include "my-notepad-chart.frontendFullname" . }}
+  Backend: kubectl logs -f deployment/{{ include "my-notepad-chart.backendFullname" . }}
+
+{{- if .Values.ingress.enabled }}
+Note: It may take a few minutes for the ingress to be available. You can check its status by running:
+  kubectl get ingress {{ include "my-notepad-chart.fullname" . }}
+{{- end }}
