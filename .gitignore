@@ -1,3 +1,5 @@
 node_modules
 dist
 .env
+
+# values.yaml is a configuration file that should not be committed to the repository. In this case, it is for learning purposes only.

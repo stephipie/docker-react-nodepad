@@ -1,0 +1,77 @@
+frontend:
+  replicaCount: 1
+  image:
+    repository: stephipie/frontend-app
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    port: 80
+    type: ClusterIP
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+backend:
+  deploymentName: my-notepad-my-notepad-chart-backend
+  replicaCount: 1
+  image:
+    repository: stephipie/backend-app
+    tag: latest
+  service:
+    port: 3000
+    type: ClusterIP
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  config:
+    greetingMessage: "Hello from Helm!"
+    featureHealth: true
+  database:
+    host: my-notepad-database
+    port: 5432
+    user: postgres
+    dbName: notes_db                   
+    secretName: my-notepad-database 
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  host: my-notepad.local
+  paths:
+    frontend: /
+    backendApi: /api
+
+postgresql:
+  enabled: true
+  global:
+    postgresql:
+      auth:
+        username: postgres
+        password: SK4hHwhjfR
+        database: notes_db
+  primary:
+    initdb:
+      scripts:
+        init-db.sql: |
+          CREATE TABLE IF NOT EXISTS notes (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            content TEXT NOT NULL,
+            is_completed BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+          );
+          INSERT INTO notes (title, content, is_completed) VALUES ('Welcome!', 'This is your first note from the database!', false);
+          INSERT INTO notes (title, content, is_completed) VALUES ('Another Note', 'You can start adding more notes now.', true);
+  persistence:
+    enabled: true
+    size: 8Gi
+    storageClass: "standard"
